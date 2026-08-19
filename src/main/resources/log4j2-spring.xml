@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+// MDC nedir? patterni öğren, mdc eklenecek.
+    <!-- Sabit Değişkenlerimiz -->
+    <Properties>
+        <!-- Logların txt/log dosyasındaki görünüm formatı -->
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Property>
+        <!-- Logların kaydedileceği klasörün adı -->
+        <Property name="LOG_FOLDER">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 1. KONSOL AYARLARI (Ekranda renkli görmek için) -->
+        <Console name="ConsoleLogger" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{cyan} %highlight{[%-5level]} %style{%logger{36}}{magenta} - %msg%n"/>
+        </Console>
+
+        <!-- 2. KLASÖR/DOSYA AYARLARI (Takım liderinin istediği kısım) -->
+        <RollingFile name="FileLogger"
+                     fileName="${LOG_FOLDER}/auth-service.log"
+                     filePattern="${LOG_FOLDER}/auth-service-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- Her gün gece yarısı yeni bir dosyaya geç -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- Veya dosya boyutu 10 MB'ı geçerse yeni dosyaya geç -->
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <!-- Sunucu şişmesin diye sadece son 30 dosyayı arşivde tut -->
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Hiyerarşi ve Additivity -->
+        <Root level="info">
+            <AppenderRef ref="ConsoleLogger"/>
+            <AppenderRef ref="FileLogger"/>
+        </Root>
+
+        <Logger name="org.example.authentication" level="debug" additivity="false">
+            <AppenderRef ref="ConsoleLogger" level="info"/>
+            <AppenderRef ref="FileLogger" level="debug"/>
+        </Logger>
+    </Loggers>
+
+</Configuration>
